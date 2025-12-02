@@ -1,0 +1,5 @@
+../Core/Src/uart.c:32:9:buffer_is_flag	4	static
+../Core/Src/uart.c:37:6:reset_flag	4	static
+../Core/Src/uart.c:42:6:get_rx_msg	16	static
+../Core/Src/uart.c:58:6:command_parser_fsm	4	static
+../Core/Src/uart.c:99:6:uart_communication_fsm	8	static

@@ -6,18 +6,21 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
+  * <h2><center>&copy; Copyright (c) 2025 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "uart.h"
+#include "software_timer.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -31,7 +34,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -47,7 +49,7 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+uint8_t rx_byte = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,17 +96,30 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC1_Init();
   MX_USART2_UART_Init();
+  MX_ADC1_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Base_Start_IT(&htim2);
+  HAL_ADC_Start(&hadc1);
+  HAL_UART_Receive_IT(&huart2 , &rx_byte, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  timerSet(0, 1000);
   while (1)
   {
+	if (buffer_is_flag()) {
+		command_parser_fsm();
+		reset_flag();
+	}
+	uart_communication_fsm();
+
+	if (timerFlag(0)){
+		timerSet(0, 1000);
+		HAL_GPIO_TogglePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin);
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -311,7 +326,22 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+    if (htim->Instance == TIM2) {
+        timerRun();
+    }
+}
 
+void HAL_UART_RxCpltCallback (UART_HandleTypeDef *huart)
+{
+	if (huart->Instance == USART2)
+	{
+		HAL_UART_Transmit(&huart2, &rx_byte, 1, HAL_MAX_DELAY); //loopback to display on terminal
+		get_rx_msg(rx_byte);
+		HAL_UART_Receive_IT(&huart2, &rx_byte, 1);			//resart uart callback
+
+	}
+}
 /* USER CODE END 4 */
 
 /**
