@@ -2,7 +2,7 @@
  * software_timer.h
  *
  *  Created on: Sep 9, 2025
- *      Author: HANH
+ *      Author: KHANH
  */
 
 #ifndef INC_SOFTWARE_TIMER_H_

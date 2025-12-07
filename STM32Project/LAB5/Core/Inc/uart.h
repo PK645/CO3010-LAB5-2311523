@@ -2,7 +2,7 @@
  * uart.h
  *
  *  Created on: Nov 10, 2025
- *      Author: HANH
+ *      Author: KHANH
  */
 
 #ifndef INC_UART_H_

@@ -2,7 +2,7 @@
  * uart.c
  *
  *  Created on: Nov 10, 2025
- *      Author: HANH
+ *      Author: KHANH
  */
 
 #include "uart.h"
